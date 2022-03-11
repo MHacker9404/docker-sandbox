@@ -1,0 +1,225 @@
+# what i need
+# python3
+ARG PYTHON_VERSION=3.10.2
+FROM python:${PYTHON_VERSION}-slim-bullseye
+
+ENV PYTHON_VERSION=${PYTHON_VERSION}
+LABEL PYTHON_VERSION=${PYTHON_VERSION:-3.10.2}
+
+# Prevent dialog during apt install
+ENV DEBIAN_FRONTEND noninteractive
+
+# timezone
+ENV TZ=America/New_York
+RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
+
+RUN apt-get update && apt-get upgrade -y && \
+    apt-get install -y --no-install-recommends \
+    apt-utils \
+    apt-transport-https \
+    ca-certificates \
+    curl \
+    gnupg \
+    libssl-dev \
+    libssl-doc \
+    lsb-release \
+    wget && \
+    # Get all of the signatures we need all at once.
+    curl -fsSL https://deb.nodesource.com/gpgkey/nodesource.gpg.key  | gpg --dearmor -o /usr/share/keyrings/nodesource.gpg && \
+    curl -fsSL https://dl.yarnpkg.com/debian/pubkey.gpg              | gpg --dearmor -o /usr/share/keyrings/yarnpkg.gpg && \
+    curl -fsSL https://packages.cloud.google.com/apt/doc/apt-key.gpg | gpg --dearmor -o /usr/share/keyrings/apt-key.gpg && \
+    curl -fsSL https://packages.microsoft.com/keys/microsoft.asc     | gpg --dearmor -o /usr/share/keyrings/microsoft.gpg && \
+    curl -fsSL https://download.docker.com/linux/debian/gpg          | gpg --dearmor -o /usr/share/keyrings/docker-archive-keyring.gpg && \
+    curl -fsSL https://apt.releases.hashicorp.com/gpg                | gpg --dearmor -o /usr/share/keyrings/hashicorp.gpg && \
+    # Add additional apt repos all at once
+    # echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/nodesource.gpg] https://deb.nodesource.com/node_14.x $(lsb_release -cs) main" \
+    # | tee /etc/apt/sources.list.d/node.list && \
+    echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/docker-archive-keyring.gpg] https://download.docker.com/linux/debian $(lsb_release -cs) stable" \
+    | tee /etc/apt/sources.list.d/docker.list && \
+    echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/apt-key.gpg] http://apt.kubernetes.io/ kubernetes-xenial main" \
+    | tee /etc/apt/sources.list.d/kubernetes.list && \
+    echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/microsoft.gpg] https://packages.microsoft.com/repos/microsoft-debian-stretch-prod stretch main" \
+    | tee /etc/apt/sources.list.d/microsoft.list && \
+    echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/hashicorp.gpg] https://apt.releases.hashicorp.com $(lsb_release -cs) main" \
+    | tee /etc/apt/sources.list.d/hashicorp.list && \
+    apt-get update && apt-get upgrade -y && \
+    apt-get install -y --no-install-recommends \
+    build-essential \
+    gettext-base \
+    git \
+    graphviz \
+    jq \
+    libncurses-dev \
+    libffi-dev \
+    libsqlite3-dev \
+    libreadline-dev \
+    libbz2-dev \
+    openssh-client \
+    software-properties-common \
+    sudo \
+    tree \
+    unzip \
+    zip \
+    zlib1g-dev && \
+    apt-get clean
+
+# docker
+ENV DOCKER_CONFIG=${DOCKER_CONFIG:-$HOME/.docker}
+ARG DC_VERSION=2.3.0
+LABEL DC_VERSION=${DC_VERSION:-2.3.0}
+RUN apt-get update && apt-get upgrade -y && \
+    apt-get install -y --no-install-recommends \
+    docker-ce \
+    docker-ce-cli \
+    containerd.io \
+    pass && \
+    apt-get clean && \
+    curl -SL https://github.com/docker/compose/releases/download/v${DC_VERSION}/docker-compose-linux-x86_64 \
+    -o /usr/local/bin/docker-compose && \
+    chmod +x /usr/local/bin/docker-compose
+# ENV PATH="/usr/local/lib/docker/cli-plugins:${PATH}"
+
+# configure ECR credential helper
+# WORKDIR /root/.docker
+# COPY ./config/docker-config.json ./config.json
+# WORKDIR /
+
+# RUN mkdir $HOME/.kube && touch $HOME/.kube/config
+RUN mkdir $HOME/.kube 
+ENV KUBECONFIG=/root/.kube/config
+
+# helm
+# https://github.com/helm/helm/releases
+ARG HELM_VERSION=3.8.0
+# ENV TAR_FILE="helm-v${HELM_VERSION}-linux-amd64.tar.gz"
+RUN curl -1sLf 'https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3' | bash
+# add helm-diff
+RUN helm plugin install https://github.com/databus23/helm-diff && \
+    # add helm-unittest
+    helm plugin install https://github.com/quintush/helm-unittest && \
+    # add helm-push
+    helm plugin install https://github.com/chartmuseum/helm-push && \
+    rm -rf /tmp/helm*
+
+# kubectl
+# https://storage.googleapis.com/kubernetes-release/release/stable.txt
+ARG KUBECTL_VERSION=1.23.4
+RUN curl -sLO https://storage.googleapis.com/kubernetes-release/release/v${KUBECTL_VERSION}/bin/linux/amd64/kubectl && \
+    mv kubectl /usr/bin/kubectl && \
+    chmod +x /usr/bin/kubectl
+
+# Install kustomize (latest release)
+# https://github.com/kubernetes-sigs/kustomize/releases
+ARG KUSTOMIZE_VERSION=v4.5.2
+RUN curl -sLO https://github.com/kubernetes-sigs/kustomize/releases/download/kustomize%2F${KUSTOMIZE_VERSION}/kustomize_${KUSTOMIZE_VERSION}_linux_amd64.tar.gz && \
+    tar xvzf kustomize_${KUSTOMIZE_VERSION}_linux_amd64.tar.gz && \
+    mv kustomize /usr/bin/kustomize && \
+    chmod +x /usr/bin/kustomize && \
+    rm kustomize_${KUSTOMIZE_VERSION}_linux_amd64.tar.gz
+
+# Install kubeseal
+# https://github.com/bitnami-labs/sealed-secrets/releases
+ARG KUBESEAL_VERSION=v0.17.3
+RUN curl -sL https://github.com/bitnami-labs/sealed-secrets/releases/download/${KUBESEAL_VERSION}/kubeseal-linux-amd64 -o kubeseal && \
+    mv kubeseal /usr/bin/kubeseal && \
+    chmod +x /usr/bin/kubeseal
+
+# python
+RUN python -m ensurepip --default-pip && \
+    pip install --upgrade pip setuptools wheel
+
+# terratest requires go
+ARG GO_VERSION=1.17.8
+RUN curl -O https://dl.google.com/go/go${GO_VERSION}.linux-amd64.tar.gz && \
+    tar xvf go${GO_VERSION}.linux-amd64.tar.gz && \
+    chown -R root:root ./go && \
+    mv go /usr/local && \
+    rm -rf go${GO_VERSION}.linux-amd64.tar.gz
+ENV GOPATH=/workpath
+ENV PATH="$PATH:/usr/local/go/bin:$GOPATH/bin"
+
+# install sops
+# https://github.com/mozilla/sops
+ARG SOPS_VERSION=3.7.1
+RUN go get -u go.mozilla.org/sops/cmd/sops
+
+# install gomplate
+# https://github.com/hairyhenderson/gomplate
+ARG GOMPLATE_VERSION=3.10.0
+RUN curl -sLO https://github.com/hairyhenderson/gomplate/releases/download/v${GOMPLATE_VERSION}/gomplate_linux-arm64-slim && \
+    mv gomplate_linux-arm64-slim /usr/bin/gomplate && \
+    chmod +x /usr/bin/gomplate
+
+# terraform
+ARG TF_VERSION=1.1.7
+RUN apt-get install -y --no-install-recommends terraform=${TF_VERSION} && \
+    apt-get clean
+
+ARG TG_VERSION=0.36.3
+RUN wget https://github.com/gruntwork-io/terragrunt/releases/download/v${TG_VERSION}/terragrunt_linux_amd64 && \
+    # Move to local bin
+    mv terragrunt_linux_amd64 /usr/local/bin/terragrunt && \
+    # Make it executable
+    chmod +x /usr/local/bin/terragrunt && \
+    # Check that it's installed
+    terragrunt --version
+
+# aws-cli
+RUN apt-get install -y --no-install-recommends \
+    less \
+    groff && \
+    apt-get clean && \
+    curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip" && \
+    unzip awscliv2.zip && \
+    ./aws/install && \
+    rm -rf awscliv2.zip \
+    ./aws
+
+# amazon-ecr-credential-helper
+RUN apt-get install -y amazon-ecr-credential-helper
+
+# Install eksctl (latest version)
+RUN curl -sL "https://github.com/weaveworks/eksctl/releases/latest/download/eksctl_$(uname -s)_amd64.tar.gz" | tar xz -C /tmp && \
+    mv /tmp/eksctl /usr/bin && \
+    chmod +x /usr/bin/eksctl
+
+# https://docs.aws.amazon.com/eks/latest/userguide/install-aws-iam-authenticator.html
+# Install aws-iam-authenticator
+RUN authenticator=$(aws --no-sign-request s3 ls s3://amazon-eks --recursive |grep aws-iam-authenticator$|grep amd64 |awk '{print $NF}' |sort -V|tail -1) && \
+    aws --no-sign-request s3 cp s3://amazon-eks/${authenticator} /usr/bin/aws-iam-authenticator && \
+    chmod +x /usr/bin/aws-iam-authenticator
+
+# nodejs
+RUN curl -sL https://deb.nodesource.com/setup_16.x | bash - && \
+    apt-get install -y nodejs && \
+    apt-get clean
+
+# nodejs tools
+# typescript && yarn
+ARG YARN_VERSION=1.22.17
+ARG TSC_VERSION=4.6.2
+ARG NCU_VERSION=12.5.2
+LABEL YARN_VERSION=${YARN_VERSION}
+LABEL TSC_VERSION=${TSC_VERSION}
+LABEL NCU_VERSION=${NCU_VERSION}
+RUN npm install -g npm && npm --version && \
+    npm install -g yarn@$YARN_VERSION && yarn --version && \
+    npm install -g typescript@$TSC_VERSION @typescript-eslint/parser vue-eslint-parser && tsc --version && \
+    npm install -g npm-check-updates@$NCU_VERSION && ncu --version  
+    # npm install -g prettier eslint prettier-eslint
+
+# Powershell
+RUN apt-get install -y powershell && \
+    apt-get clean
+
+RUN cd /tmp && rm -rf ./*
+
+VOLUME ["/usr/lib/python3.10/site-packages/"]
+
+# kubectl
+EXPOSE 8080
+
+# VOLUME [ "/workspace" ]
+# VOLUME [ "/tmp" ]
+
+ENTRYPOINT [ "/bin/bash", "-c" ]

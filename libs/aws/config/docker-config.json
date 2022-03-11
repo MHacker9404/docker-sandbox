@@ -1,0 +1,7 @@
+{
+    "credHelpers": {
+        "public.ecr.aws": "ecr-login"
+    },
+    "credsStore": "pass",
+    "experimental": "true"
+}

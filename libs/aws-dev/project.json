@@ -1,0 +1,17 @@
+{
+    "root": "libs/aws-dev",
+    "projectType": "library",
+    "targets": {
+        "docker": {
+            "executor": "@nx-tools/nx-docker:build",
+            "options": {
+                "push": true,
+                "tags": [
+                    "prbservicesllc/aws-dev:latest",
+                    "prbservicesllc/aws-dev:v1"
+                ]
+            }
+        }
+    },
+    "tags": []
+}
