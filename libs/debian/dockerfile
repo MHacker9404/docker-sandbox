@@ -1,0 +1,38 @@
+
+# Net
+RUN wget https://packages.microsoft.com/config/debian/11/packages-microsoft-prod.deb -O packages-microsoft-prod.deb && \
+    dpkg -i packages-microsoft-prod.deb && \
+    rm packages-microsoft-prod.deb && \
+    apt-get update && \
+    apt-get install -y aspnetcore-runtime-3.1 dotnet-sdk-6.0 && \
+    apt-get clean
+ENV PATH="/root/.dotnet:${PATH}"
+ENV DOTNET_ROOT="/root/.dotnet"
+RUN dotnet tool install --global dotnet-ef && \
+    dotnet tool install --global GitVersion.Tool
+ENV PATH="/root/.dotnet/tools:${PATH}"
+# issue with EF Core https://github.com/dotnet/SqlClient/issues/220
+ENV DOTNET_SYSTEM_GLOBALIZATION_INVARIANT=false
+
+# # git - gcmcore is dependent on .Net
+RUN wget https://github.com/microsoft/Git-Credential-Manager-Core/releases/download/v2.0.632/gcmcore-linux_amd64.2.0.632.34631.deb && \
+    dpkg -i gcmcore-linux_amd64.2.0.632.34631.deb && \
+    rm gcmcore-linux_amd64.2.0.632.34631.deb && \
+    git config --global credential.credentialStore cache
+
+# https://mkcert.dev/
+# https://medium.com/@ma1f/docker-dotnet-3d979f56efe6
+# dotnet kestrel env vars
+ENV Kestrel:Certificates:Default:Path=/etc/ssl/private/cert.pfx
+ENV Kestrel:Certificates:Default:Password=changeit
+ENV Kestrel:Certificates:Default:AllowInvalid=true
+ENV Kestrel:EndPointDefaults:Protocols=Http1AndHttp2
+
+# copy certificate authority certs from local file system
+ENV CA_KEY=./mkcert/rootCA-key.pem
+ENV CA_CERT=./mkcert/rootCA.pem
+# default ca cert location (mkcert)
+COPY ${CA_KEY} /root/.local/share/mkcert/
+COPY ${CA_CERT} /root/.local/share/mkcert/
+
+ENV DOMAINS='localhost 127.0.0.1'
