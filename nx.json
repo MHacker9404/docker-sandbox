@@ -1,5 +1,5 @@
 {
-  "npmScope": "nx-apps",
+  "npmScope": "docker-sandbox",
   "affected": {
     "defaultBase": "main"
   },
