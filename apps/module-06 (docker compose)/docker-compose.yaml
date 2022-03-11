@@ -1,0 +1,55 @@
+version: "3.9"
+services:
+    mongo:
+        image: mongo:focal
+        volumes:
+            - data:/data/db
+            # environment:
+            #   # - MONGO_INITDB_ROOT_USERNAME=root
+            #   # MONGO_INITDB_ROOT_USERNAME: root
+            #   # MONGO_INITDB_ROOT_PASSWORD: abcdeABCDE
+        env_file:
+            - ./env/mongo.env
+        networks:
+            - mod-06
+
+    backend:
+        # build: ./backend
+        build:
+            context: ./backend
+            # dockerfile: Dockerfile
+
+            # args:
+            #   some-arg: 'some value'
+        env_file:
+            - ./env/backend.env
+        volumes:
+            - logs:/app/logs
+            # - ./backend:/app
+            - /app/node_modules
+        ports:
+            - "5000:80"
+        networks:
+            - mod-06
+        depends_on:
+            - mongo
+
+    frontend:
+        build:
+            context: ./frontend
+        ports:
+            - "5001:3000"
+        stdin_open: true
+        tty: true
+        depends_on:
+            - mongo
+            - backend
+
+networks:
+    mod-06:
+        name: mod-06
+        driver: bridge
+
+volumes:
+    data:
+    logs:

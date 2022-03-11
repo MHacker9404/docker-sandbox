@@ -1,0 +1,14 @@
+FROM node:latest
+
+WORKDIR /app
+
+# this is less likeley to change than the source code
+# so optimize the build layers by putting this earlier
+COPY package.json .
+RUN npm install
+
+COPY . .
+
+EXPOSE 80
+
+CMD [ "node", "server.js" ]

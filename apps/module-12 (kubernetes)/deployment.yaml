@@ -1,0 +1,20 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mod-12
+
+spec:
+  replicas: 3
+
+  selector:
+    matchLabels:
+      app: second-app
+
+  template:
+    metadata:
+      labels:
+        app: second-app
+    spec:
+      containers:
+        - name: mod-12
+          image: prbservicesllc/mod-12:1

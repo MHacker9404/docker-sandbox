@@ -1,0 +1,17 @@
+FROM node:alpine
+
+WORKDIR /app
+COPY ./package.json .
+RUN npm install
+COPY . .
+ENV PORT 5000
+EXPOSE ${PORT}
+
+# creates an anonymous volume
+# VOLUME [ "/app/feedback" ]
+
+# use this to mitigate bind mounting overriding the image folder and 
+# losing the node_modules
+VOLUME [ "/app/node_modules" ]
+# CMD [ "node", "server.js" ]
+CMD [ "npm", "start" ]

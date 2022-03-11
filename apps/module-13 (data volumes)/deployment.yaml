@@ -1,0 +1,81 @@
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: mod-13
+spec:
+  capacity:
+    storage: 1Gi
+  volumeMode: Filesystem
+  storageClassName: hostpath
+  accessModes:
+    - ReadWriteOnce
+  hostPath:
+    path: "/mnt/D/docker-sandbox/dk-tcg/module-13 (data volumes)/data"
+    type: DirectoryOrCreate
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: mod-13
+spec:
+  volumeName: mod-13
+  storageClassName: hostpath
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 250Mi
+  volumeMode: Filesystem
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: mod-13
+spec:
+  selector:
+    app: mod-13
+  type: LoadBalancer
+  ports:
+    - port: 3000
+      targetPort: 3000
+      protocol: "TCP"
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mod-13
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: mod-13
+  template:
+    metadata:
+      labels:
+        app: mod-13
+    spec:
+      containers:
+        - name: mod-13
+          imagePullPolicy: Never
+          image: mod-13:latest
+          resources:
+            limits:
+              memory: "128Mi"
+              cpu: "500m"
+          ports:
+            - containerPort: 3000
+              # hostPort: 3000
+              protocol: "TCP"
+          volumeMounts:
+            - mountPath: /app/story
+              name: mod-13
+      volumes:
+        - name: mod-13
+          persistentVolumeClaim:
+            claimName: mod-13
+#       # # volumes:
+#       #   - name: mod-13-vol
+#       #     # emptyDir: {}
+#       #     hostPath: 
+#       #       path: "D:/docker-sandbox/dk-tcg/module-13 (data volumes)/data"
+#       #       type: DirectoryOrCreate
