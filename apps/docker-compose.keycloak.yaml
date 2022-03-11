@@ -1,0 +1,45 @@
+version: '3.9'
+
+services:
+    mysql:
+        image: mysql:latest
+        volumes:
+            - key-cloak-data:/var/lib/mysql
+            # - '/etc/localtime:/etc/localtime:ro'
+        restart: always
+        networks:
+            - keycloak-network
+        environment:
+            MYSQL_ROOT_PASSWORD: TRedhead12!@
+            MYSQL_DATABASE: keycloak
+            MYSQL_USER: keycloak
+            MYSQL_PASSWORD: TRedhead12!@
+            # TZ: America/New_York
+    key-cloak:
+        depends_on:
+            - mysql
+        # image: jboss/keycloak:12.0.4
+        image: jboss/keycloak:latest
+        restart: always
+        networks:
+            - keycloak-network
+        ports:
+            - '8080:8080'
+            - '8443:8443'
+        environment:
+            # KEYCLOAK_USER: admin
+            # KEYCLOAK_PASSWORD: admin
+            DB_VENDOR: mysql
+            DB_ADDR: mysql
+            DB_USER: keycloak
+            DB_PASSWORD: TRedhead12!@
+            TZ: America/New_York
+        # volumes:
+        # - '/etc/localtime:/etc/localtime:ro'
+
+volumes:
+    key-cloak-data: {}
+
+networks:
+    keycloak-network:
+        name: keycloak-network

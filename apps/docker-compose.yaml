@@ -1,0 +1,210 @@
+version: '3.9'
+
+services:
+    mysql:
+        image: mysql:latest
+        volumes:
+            - key-cloak_data:/var/lib/mysql
+        restart: always
+        networks:
+            - keycloak-network
+        environment:
+            MYSQL_ROOT_PASSWORD: TRedhead12!@
+            MYSQL_DATABASE: keycloak
+            MYSQL_USER: keycloak
+            MYSQL_PASSWORD: TRedhead12!@
+    key-cloak:
+        depends_on:
+            - mysql
+        # image: jboss/keycloak:12.0.4
+        image: jboss/keycloak:latest
+        restart: always
+        networks:
+            - keycloak-network
+        ports:
+            - '8080:8080'
+            - '8443:8443'
+        environment:
+            KEYCLOAK_USER: admin
+            KEYCLOAK_PASSWORD: admin
+            DB_VENDOR: mysql
+            DB_ADDR: mysql
+            DB_USER: keycloak
+            DB_PASSWORD: TRedhead12!@
+
+    localstack:
+        # container_name: '${LOCALSTACK_DOCKER_NAME-localstack_main}'
+        image: localstack/localstack
+        network_mode: bridge
+        networks:
+            - localstack-network
+        restart: always
+        ports:
+            - '4566:4566'
+            - '4571:4571'
+            - '${PORT_WEB_UI-8800}:${PORT_WEB_UI-8080}'
+        environment:
+            - SERVICES=${SERVICES- }
+            - DEBUG=${DEBUG- }
+            - DATA_DIR=${DATA_DIR- }
+            - PORT_WEB_UI=${PORT_WEB_UI- }
+            - LAMBDA_EXECUTOR=${LAMBDA_EXECUTOR- }
+            - KINESIS_ERROR_PROBABILITY=${KINESIS_ERROR_PROBABILITY- }
+            - DOCKER_HOST=unix:///var/run/docker.sock
+            - HOST_TMP_FOLDER=${TMPDIR}
+        volumes:
+            - '${TMPDIR:-/tmp/localstack}:/tmp/localstack'
+            - '/var/run/docker.sock:/var/run/docker.sock'
+
+    sonar:
+        image: sonarqube:latest
+        restart: always
+        networks:
+            - sonar-network
+        ports:
+            - 9000:9000
+
+    portainer:
+        image: portainer/portainer:latest
+        command: -H unix:///var/run/docker.sock
+        restart: always
+        ports:
+            - 9100:9000
+            - 8000:8000
+        volumes:
+            - /var/run/docker.sock:/var/run/docker.sock
+            - portainer-data:/data
+
+    #anchore:
+    api:
+        image: anchore/anchore-engine:v0.7.3
+        depends_on:
+            - db
+            - catalog
+        ports:
+            - '8228:8228'
+        restart: always
+        networks:
+            - anchore-network
+        logging:
+            driver: 'json-file'
+            options:
+                max-size: 100m
+        environment:
+            - ANCHORE_ENDPOINT_HOSTNAME=api
+            - ANCHORE_DB_HOST=db
+            - ANCHORE_DB_PASSWORD=mysecretpassword
+        command: ['anchore-manager', 'service', 'start', 'apiext']
+    # Catalog is the primary persistence and state manager of the system
+    catalog:
+        image: anchore/anchore-engine:v0.7.3
+        depends_on:
+            - db
+        logging:
+            driver: 'json-file'
+            options:
+                max-size: 100m
+        restart: always
+        networks:
+            - anchore-network
+        expose:
+            - 8228
+        environment:
+            - ANCHORE_ENDPOINT_HOSTNAME=catalog
+            - ANCHORE_DB_HOST=db
+            - ANCHORE_DB_PASSWORD=mysecretpassword
+        command: ['anchore-manager', 'service', 'start', 'catalog']
+    queue:
+        image: anchore/anchore-engine:v0.7.3
+        depends_on:
+            - db
+            - catalog
+        restart: always
+        networks:
+            - anchore-network
+        expose:
+            - 8228
+        logging:
+            driver: 'json-file'
+            options:
+                max-size: 100m
+        environment:
+            - ANCHORE_ENDPOINT_HOSTNAME=queue
+            - ANCHORE_DB_HOST=db
+            - ANCHORE_DB_PASSWORD=mysecretpassword
+        command: ['anchore-manager', 'service', 'start', 'simplequeue']
+    policy-engine:
+        image: anchore/anchore-engine:v0.7.3
+        depends_on:
+            - db
+            - catalog
+        restart: always
+        networks:
+            - anchore-network
+        expose:
+            - 8228
+        logging:
+            driver: 'json-file'
+            options:
+                max-size: 100m
+        environment:
+            - ANCHORE_ENDPOINT_HOSTNAME=policy-engine
+            - ANCHORE_DB_HOST=db
+            - ANCHORE_DB_PASSWORD=mysecretpassword
+        command: ['anchore-manager', 'service', 'start', 'policy_engine']
+    analyzer:
+        image: anchore/anchore-engine:v0.7.3
+        depends_on:
+            - db
+            - catalog
+        restart: always
+        networks:
+            - anchore-network
+        expose:
+            - 8228
+        logging:
+            driver: 'json-file'
+            options:
+                max-size: 100m
+        environment:
+            - ANCHORE_ENDPOINT_HOSTNAME=analyzer
+            - ANCHORE_DB_HOST=db
+            - ANCHORE_DB_PASSWORD=mysecretpassword
+        volumes:
+            - /analysis_scratch
+        command: ['anchore-manager', 'service', 'start', 'analyzer']
+    db:
+        image: 'postgres:9'
+        volumes:
+            - anchore-db-volume:/var/lib/postgresql/data
+        environment:
+            - POSTGRES_PASSWORD=mysecretpassword
+        restart: always
+        networks:
+            - anchore-network
+        expose:
+            - 5432
+        logging:
+            driver: 'json-file'
+            options:
+                max-size: 100m
+        healthcheck:
+            test: ['CMD-SHELL', 'pg_isready -U postgres']
+
+volumes:
+    key-cloak_data: {}
+    portainer-data: {}
+    anchore-db-volume:
+        external: false
+
+networks:
+    localstack-network:
+        name: localstack-network
+    keycloak-network:
+        name: keycloak-network
+    portainer-network:
+        name: portainer-network
+    anchore-network:
+        name: anchore-network
+    sonar-network:
+        name: sonar-network
