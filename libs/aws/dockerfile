@@ -85,7 +85,7 @@ RUN apt-get update && apt-get upgrade -y && \
 # WORKDIR /
 
 # RUN mkdir $HOME/.kube && touch $HOME/.kube/config
-RUN mkdir $HOME/.kube 
+RUN mkdir $HOME/.kube
 ENV KUBECONFIG=/root/.kube/config
 
 # helm
@@ -190,6 +190,7 @@ RUN authenticator=$(aws --no-sign-request s3 ls s3://amazon-eks --recursive |gre
     chmod +x /usr/bin/aws-iam-authenticator
 
 # nodejs
+# RUN curl -sL https://deb.nodesource.com/setup_17.x | bash - && \
 RUN curl -sL https://deb.nodesource.com/setup_16.x | bash - && \
     apt-get install -y nodejs && \
     apt-get clean
@@ -199,14 +200,16 @@ RUN curl -sL https://deb.nodesource.com/setup_16.x | bash - && \
 ARG YARN_VERSION=1.22.17
 ARG TSC_VERSION=4.6.2
 ARG NCU_VERSION=12.5.2
+ARG NEWMAN_VERSION=5.3.2
 LABEL YARN_VERSION=${YARN_VERSION}
 LABEL TSC_VERSION=${TSC_VERSION}
 LABEL NCU_VERSION=${NCU_VERSION}
+LABEL NEWMAN_VERSION=${NEWMAN_VERSION}
 RUN npm install -g npm && npm --version && \
     npm install -g yarn@$YARN_VERSION && yarn --version && \
     npm install -g typescript@$TSC_VERSION @typescript-eslint/parser vue-eslint-parser && tsc --version && \
-    npm install -g npm-check-updates@$NCU_VERSION && ncu --version  
-    # npm install -g prettier eslint prettier-eslint
+    npm install -g npm-check-updates@$NCU_VERSION && ncu --version && \
+    npm install -g newman@$NEWMAN_VERSION && newman --version
 
 # Powershell
 RUN apt-get install -y powershell && \
