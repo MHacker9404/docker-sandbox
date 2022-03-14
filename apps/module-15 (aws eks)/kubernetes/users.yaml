@@ -69,7 +69,7 @@ spec:
               cpu: "500m"
           env:
             - name: MONGODB_CONNECTION_URI
-              value: 'mongodb+srv://phil_boyd_mongodb:fjcm2X@*dH&1!ss9@cluster0.7yy8u.mongodb.net/myFirstDatabase?retryWrites=true&w=majority'
+              value: <revoked>
             - name: AUTH_API_ADDRESS
               value: 'auth-service.default:3000'
           volumeMounts:
