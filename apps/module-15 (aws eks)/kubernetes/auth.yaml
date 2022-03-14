@@ -27,7 +27,7 @@ spec:
     spec:
       containers:
         - name: auth-api
-          image: prbservicesllc/auth:mod-15
+          image: prbservicesllc/auth:latest
           resources:
             limits:
               memory: "128Mi"

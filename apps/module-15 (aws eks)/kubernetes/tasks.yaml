@@ -1,0 +1,39 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: tasks-service
+spec:
+  selector:
+    app: tasks-api
+  type: LoadBalancer
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 3000
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: tasks-deployment
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: tasks-api
+  template:
+    metadata:
+      labels:
+        app: tasks-api
+    spec:
+      containers:
+        - name: tasks-api
+          image: prbservicesllc/tasks:latest
+          resources:
+            limits:
+              memory: "128Mi"
+              cpu: "500m"
+          env:
+            - name: MONGODB_CONNECTION_URI
+              value: 'mongodb+srv://phil_boyd_mongodb:fjcm2X@*dH&1!ss9@cluster0.7yy8u.mongodb.net/myFirstDatabase?retryWrites=true&w=majority'
+            - name: AUTH_API_ADDRESS
+              value: 'auth-service.default:3000'
