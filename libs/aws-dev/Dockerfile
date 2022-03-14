@@ -53,7 +53,7 @@ ENV CA_CERT=./mkcert/rootCA.pem
 COPY ${CA_KEY} /root/.local/share/mkcert/
 COPY ${CA_CERT} /root/.local/share/mkcert/
 
-ENV DOMAINS='prb-services-llc.com localhost 127.0.0.1'
+ENV DOMAINS='prb-services-llc.local localhost 127.0.0.1'
 # install CA and SSL cert
 RUN apt-get install libnss3-tools -y && \
     curl -L https://github.com/FiloSottile/mkcert/releases/download/v1.3.0/mkcert-v1.3.0-linux-amd64 > /usr/local/bin/mkcert && \
