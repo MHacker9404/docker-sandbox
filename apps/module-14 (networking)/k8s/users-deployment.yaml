@@ -1,0 +1,38 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: users-deployment
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: users-api
+  template:
+    metadata:
+      labels:
+        app: users-api
+    spec:
+      containers:
+        - name: users-api
+          image: users:mod-14
+          imagePullPolicy: Never
+          resources:
+            limits:
+              memory: "128Mi"
+              cpu: "500m"
+          ports:
+            - containerPort: 3000
+              protocol: "TCP"
+          env:
+            - name: AUTH_DOMAIN
+              value: auth-api.default
+        # - name: auth-api
+        #   image: auth:mod-14
+        #   imagePullPolicy: Never
+        #   resources:
+        #     limits:
+        #       memory: "128Mi"
+        #       cpu: "500m"
+        #   ports:
+        #     - containerPort: 5000
+        #       protocol: "TCP"

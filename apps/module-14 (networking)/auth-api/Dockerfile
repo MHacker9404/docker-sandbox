@@ -1,4 +1,4 @@
-FROM node:14-alpine
+FROM node:alpine
 
 WORKDIR /app
 
@@ -8,6 +8,6 @@ RUN npm install
 
 COPY . .
 
-EXPOSE 80
+EXPOSE 5000
 
 CMD [ "node", "auth-app.js" ]
