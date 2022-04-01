@@ -16,7 +16,8 @@ RUN wget https://packages.microsoft.com/config/debian/11/packages-microsoft-prod
     dpkg -i packages-microsoft-prod.deb && \
     rm packages-microsoft-prod.deb && \
     apt update && \
-    apt install -y aspnetcore-runtime-3.1 dotnet-sdk-5.0 dotnet-sdk-6.0 && \
+    # apt install -y aspnetcore-runtime-3.1 dotnet-sdk-5.0 dotnet-sdk-6.0 && \
+    apt install -y aspnetcore-runtime-3.1 aspnetcore-runtime-5.0 dotnet-sdk-6.0 && \
     apt clean
 
 ENV ASPNETCORE_URLS=http://+:5000

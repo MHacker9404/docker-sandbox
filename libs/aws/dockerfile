@@ -48,6 +48,7 @@ RUN apt-get update && apt-get upgrade -y && \
     gettext-base \
     git \
     graphviz \
+    iputils-ping \
     jq \
     libncurses-dev \
     libffi-dev \
@@ -190,26 +191,32 @@ RUN authenticator=$(aws --no-sign-request s3 ls s3://amazon-eks --recursive |gre
     chmod +x /usr/bin/aws-iam-authenticator
 
 # nodejs
-# RUN curl -sL https://deb.nodesource.com/setup_17.x | bash - && \
-RUN curl -sL https://deb.nodesource.com/setup_16.x | bash - && \
+RUN curl -sL https://deb.nodesource.com/setup_17.x | bash - && \
     apt-get install -y nodejs && \
     apt-get clean
 
 # nodejs tools
 # typescript && yarn
-ARG YARN_VERSION=1.22.17
-ARG TSC_VERSION=4.6.2
-ARG NCU_VERSION=12.5.2
+ARG YARN_VERSION=1.22.18
+ARG TSC_VERSION=4.6.3
+ARG NCU_VERSION=12.5.4
 ARG NEWMAN_VERSION=5.3.2
+ARG NRWL_CLI=13.9.5
+ARG NX_CLI=13.9.5
+LABEL NRWL_CLI=${NRWL_CLI}
 LABEL YARN_VERSION=${YARN_VERSION}
 LABEL TSC_VERSION=${TSC_VERSION}
 LABEL NCU_VERSION=${NCU_VERSION}
 LABEL NEWMAN_VERSION=${NEWMAN_VERSION}
+LABEL NRWL_CLI=${NRWL_CLI}
+LABEL NX_CLI=${NX_CLI}
 RUN npm install -g npm && npm --version && \
     npm install -g yarn@$YARN_VERSION && yarn --version && \
     npm install -g typescript@$TSC_VERSION @typescript-eslint/parser vue-eslint-parser && tsc --version && \
     npm install -g npm-check-updates@$NCU_VERSION && ncu --version && \
-    npm install -g newman@$NEWMAN_VERSION && newman --version
+    npm install -g newman@$NEWMAN_VERSION && newman --version&& \
+    npm install -g @nrwl/cli@$NRWL_CLI nx@$NX_CLI
+
 
 # Powershell
 RUN apt-get install -y powershell && \
