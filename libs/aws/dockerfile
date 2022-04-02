@@ -211,11 +211,11 @@ LABEL NEWMAN_VERSION=${NEWMAN_VERSION}
 LABEL NRWL_CLI=${NRWL_CLI}
 LABEL NX_CLI=${NX_CLI}
 RUN npm install -g npm && npm --version && \
-    npm install -g yarn@$YARN_VERSION && yarn --version && \
-    npm install -g typescript@$TSC_VERSION @typescript-eslint/parser vue-eslint-parser && tsc --version && \
-    npm install -g npm-check-updates@$NCU_VERSION && ncu --version && \
-    npm install -g newman@$NEWMAN_VERSION && newman --version&& \
-    npm install -g @nrwl/cli@$NRWL_CLI nx@$NX_CLI
+    npm install -g yarn@$YARN_VERSION && yarn --version
+    # npm install -g typescript@$TSC_VERSION @typescript-eslint/parser vue-eslint-parser && tsc --version && \
+    # npm install -g npm-check-updates@$NCU_VERSION && ncu --version && \
+    # npm install -g newman@$NEWMAN_VERSION && newman --version&& \
+    # npm install -g @nrwl/cli@$NRWL_CLI nx@$NX_CLI
 
 
 # Powershell
