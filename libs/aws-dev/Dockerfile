@@ -20,7 +20,7 @@ RUN wget https://packages.microsoft.com/config/debian/11/packages-microsoft-prod
     apt install -y aspnetcore-runtime-3.1 aspnetcore-runtime-5.0 dotnet-sdk-6.0 && \
     apt clean
 
-ENV ASPNETCORE_URLS=http://+:5000
+ENV ASPNETCORE_URLS=http://+:80
 # ENV ASPNETCORE_HTTPS_PORT=https://+:5001
 
 ENV PATH="/root/.dotnet:/root/.dotnet/tools:${PATH}"
