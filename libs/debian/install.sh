@@ -1,10 +1,9 @@
 # rm .bashrc
-# ln -s /mnt/c/Users/philb/.nuget $HOME/.nuget
-# ln -s /mnt/c/Users/philb/.ssh $HOME/.ssh
-# ln -s /mnt/c/Users/philb/.kube $HOME/.kube
-# ln -s /mnt/c/Users/philb/.bashrc $HOME/.bashrc
-# ln -s /mnt/c/Users/philb/.bash_aliases $HOME/.bash_aliases
-# ln -s /mnt/c/Users/philb/.bash_profile $HOME/.bash_profile
+# ln -s /mnt/c/Users/phil.boyd/.ssh $HOME/.ssh
+# ln -s /mnt/c/Users/phil.boyd/.kube $HOME/.kube
+# ln -s /mnt/c/Users/phil.boyd/.bashrc $HOME/.bashrc
+# ln -s /mnt/c/Users/phil.boyd/.bash_aliases $HOME/.bash_aliases
+# ln -s /mnt/c/Users/phil.boyd/.bash_profile $HOME/.bash_profile
 
 apt-get update && apt-get upgrade -y && \
 apt-get install -y --no-install-recommends \
@@ -185,5 +184,13 @@ wget https://github.com/microsoft/Git-Credential-Manager-Core/releases/download/
 
 # Powershell
 apt-get install -y powershell && apt-get clean
+
+# dart-sass
+SASS_VERSION=1.51.0
+curl -sLO https://github.com/sass/dart-sass/releases/download/${SASS_VERSION}/dart-sass-${SASS_VERSION}-linux-x64.tar.gz && \
+    tar xvzf dart-sass-${SASS_VERSION}-linux-x64.tar.gz -C /usr/bin && \
+    # mv ./dart-sass /usr/bin/ && \
+    chmod +x /usr/bin/dart-sass/sass && \
+    rm dart-sass-${SASS_VERSION}-linux-x64.tar.gz
 
 cd /tmp && rm -rf ./*
