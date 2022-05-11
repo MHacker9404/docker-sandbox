@@ -33,8 +33,8 @@ apt-get install -y --no-install-recommends \
     | tee /etc/apt/sources.list.d/kubernetes.list > /dev/null && \
     echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/microsoft.gpg] https://packages.microsoft.com/repos/microsoft-debian-stretch-prod stretch main" \
     | tee /etc/apt/sources.list.d/microsoft.list > /dev/null && \
-    echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/microsoft.gpg] https://packages.microsoft.com/repos/code stable main" \
-    | tee /etc/apt/sources.list.d/vscode.list > /dev/null && \
+    # echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/microsoft.gpg] https://packages.microsoft.com/repos/code stable main" \
+    # | tee /etc/apt/sources.list.d/vscode.list > /dev/null && \
     echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/hashicorp.gpg] https://apt.releases.hashicorp.com $(lsb_release -cs) main" \
     | tee /etc/apt/sources.list.d/hashicorp.list > /dev/null && \
     apt-get update && apt-get upgrade -y && \
@@ -60,8 +60,8 @@ apt-get install -y --no-install-recommends \
     apt-get clean
 
 # install VSCode Insiders
-apt-get update && apt-get upgrade -y && \
-    apt-get install -y --no-install-recommends code-insiders
+# apt-get update && apt-get upgrade -y && \
+#     apt-get install -y --no-install-recommends code-insiders
 
 export DC_VERSION=2.3.0
 apt-get update && apt-get upgrade -y && \
