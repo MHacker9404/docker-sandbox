@@ -1,5 +1,13 @@
+# rm .bashrc
+# ln -s /mnt/c/Users/philb/.nuget $HOME/.nuget
+# ln -s /mnt/c/Users/philb/.ssh $HOME/.ssh
+# ln -s /mnt/c/Users/philb/.kube $HOME/.kube
+# ln -s /mnt/c/Users/philb/.bashrc $HOME/.bashrc
+# ln -s /mnt/c/Users/philb/.bash_aliases $HOME/.bash_aliases
+# ln -s /mnt/c/Users/philb/.bash_profile $HOME/.bash_profile
+
 apt-get update && apt-get upgrade -y && \
-    apt-get install -y --no-install-recommends \
+apt-get install -y --no-install-recommends \
     apt-utils \
     apt-transport-https \
     ca-certificates \
@@ -49,7 +57,6 @@ apt-get update && apt-get upgrade -y && \
     zlib1g-dev && \
     apt-get clean
 
-export DOCKER_CONFIG=$HOME/.docker
 export DC_VERSION=2.3.0
 apt-get update && apt-get upgrade -y && \
     apt-get install -y --no-install-recommends \
@@ -60,8 +67,7 @@ apt-get update && apt-get upgrade -y && \
     pass && \
     apt-get clean
 
-export PATH="/usr/local/lib/docker/cli-plugins:$PATH"
-export KUBECONFIG=$HOME/.kube/config
+# export PATH="/usr/local/lib/docker/cli-plugins:$PATH"
 
 # https://github.com/helm/helm/releases
 export HELM_VERSION=v3.9.0-rc.1
@@ -76,14 +82,16 @@ rm -rf /tmp/helm*
 
 # kubectl
 # https://storage.googleapis.com/kubernetes-release/release/stable.txt
-export KUBECTL_VERSION=1.23.4
-curl -sLO https://storage.googleapis.com/kubernetes-release/release/v${KUBECTL_VERSION}/bin/linux/amd64/kubectl && \
-    mv kubectl /usr/bin/kubectl && \
-    chmod +x /usr/bin/kubectl
+# export KUBECTL_VERSION=1.24.0
+# curl -sLO https://storage.googleapis.com/kubernetes-release/release/v${KUBECTL_VERSION}/bin/linux/amd64/kubectl && \
+#     mv kubectl /usr/bin/kubectl && \
+#     chmod +x /usr/bin/kubectl
+apt-get update && apt-get upgrade -y && \
+    apt-get install -y --no-install-recommends kubectl
 
 # Install kustomize (latest release)
 # https://github.com/kubernetes-sigs/kustomize/releases
-export KUSTOMIZE_VERSION=v4.5.2
+export KUSTOMIZE_VERSION=v4.5.4
 curl -sLO https://github.com/kubernetes-sigs/kustomize/releases/download/kustomize%2F${KUSTOMIZE_VERSION}/kustomize_${KUSTOMIZE_VERSION}_linux_amd64.tar.gz && \
     tar xvzf kustomize_${KUSTOMIZE_VERSION}_linux_amd64.tar.gz && \
     mv kustomize /usr/bin/kustomize && \
@@ -107,15 +115,13 @@ apt-get install python python3-pip && \
 # terratest requires go
 export GO_VERSION=1.17.8
 curl -O https://dl.google.com/go/go${GO_VERSION}.linux-amd64.tar.gz && \
-    tar xvf go${GO_VERSION}.linux-amd64.tar.gz && \
-    mv go /usr/local && \
+    tar xvf go${GO_VERSION}.linux-amd64.tar.gz -C /usr/local && \
     rm -rf go${GO_VERSION}.linux-amd64.tar.gz
-PATH="/usr/local/go/bin:$PATH"
 
 # install sops
 # https://github.com/mozilla/sops
 export SOPS_VERSION=3.7.1
-go install go.mozilla.org/sops/cmd/sops@latest
+/usr/local/go/bin/go install go.mozilla.org/sops/cmd/sops@latest
 
 # install gomplate
 # https://github.com/hairyhenderson/gomplate
@@ -145,12 +151,11 @@ apt-get update \
     && apt-get clean
 
 # nvm
-export XDG_CONFIG_HOME=$HOME/.nvm
-curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.1/install.sh | bash
+# curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.1/install.sh | bash
+# source $HOME/.bashrc
 
 # install Net
-export ASPNETCORE_URLS=http://+:80
-export PATH="$HOME/.dotnet:$HOME/.dotnet/tools:${PATH}"
+# export PATH="$HOME/.dotnet:$HOME/.dotnet/tools:${PATH}"
 
 wget https://packages.microsoft.com/config/debian/11/packages-microsoft-prod.deb -O packages-microsoft-prod.deb \
     && dpkg -i packages-microsoft-prod.deb \
@@ -165,13 +170,12 @@ dotnet tool install --global dotnet-ef && \
     dotnet tool install --global dotnet-tools-outdated
 # issue with EF Core https://github.com/dotnet/SqlClient/issues/220
 # ENV DOTNET_ROOT="/usr/bin"
-export DOTNET_SYSTEM_GLOBALIZATION_INVARIANT=false
 
 # git - gcmcore is dependent on .Net
 wget https://github.com/microsoft/Git-Credential-Manager-Core/releases/download/v2.0.632/gcmcore-linux_amd64.2.0.632.34631.deb && \
     dpkg -i gcmcore-linux_amd64.2.0.632.34631.deb && \
     rm gcmcore-linux_amd64.2.0.632.34631.deb && \
-    git config --global credential.credentialStore cache    
+    git config --global credential.credentialStore cache
 
 # Powershell
 apt-get install -y powershell && apt-get clean
