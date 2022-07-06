@@ -1,3 +1,4 @@
+alias vci='code-insiders $1'
 alias grep='grep --color=auto'
 alias gg='git grep -ni'
 alias phpunit='phpunit --colors'

@@ -1,4 +1,5 @@
 # History control
+
 HISTCONTROL=ignoredups:ignorespace
 HISTSIZE=100000
 HISTFILESIZE=2000000
@@ -25,7 +26,7 @@ export TERM=xterm-256color
 # Obviously.
 export EDITOR=/usr/bin/vim
 
-export PATH="/usr/local/go/bin:$HOME/dotnet:$HOME/dotnet/tools:/usr/local/lib/docker/cli-plugins:$HOME/bin:$HOME/local/bin:$HOME/etc/scripts:$PATH"
+export PATH="/usr/local/go/bin:$HOME/dotnet:$HOME/dotnet/tools:/usr/local/lib/docker/cli-plugins:$HOME/bin:$HOME/local/bin:$HOME/etc/scripts:/usr/bin/dart-sass/:$PATH"
 export GOPATH="$HOME"
 
 # Change up a variable number of directories
@@ -52,7 +53,7 @@ function vimod {
 }
 
 # Open files modified in a git commit in vim tabs; defaults to HEAD. Pop it in your .bashrc
-# Examples: 
+# Examples:
 #     virev 49808d5
 #     virev HEAD~3
 function virev {
@@ -126,17 +127,22 @@ pointerC="${txtgrn}"
 normalC="${txtwht}"
 
 # Red name for root
-if [ "${UID}" -eq "0" ]; then 
-  nameC="${txtred}" 
+if [ "${UID}" -eq "0" ]; then
+  nameC="${txtred}"
 fi
-
-# Patent Pending Prompt
-export PS1="${nameC}\u${atC}@${hostC}\h:${pathC}\w${gitC}\$(gitPrompt)${pointerC}▶${normalC} "
 
 # Local settings go last
-if [ -f ~/.localrc ]; then 
+if [ -f ~/.localrc ]; then
   source ~/.localrc
 fi
+
 export NVM_DIR="$HOME/.nvm"
 [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"  # This loads nvm
 [ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"  # This loads nvm bash_completion
+
+if [ -f "$HOME/.bash-git-prompt/gitprompt.sh" ]; then
+    GIT_PROMPT_ONLY_IN_REPO=1
+    source $HOME/.bash-git-prompt/gitprompt.sh
+fi
+
+cd /src

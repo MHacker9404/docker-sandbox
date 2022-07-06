@@ -1,9 +1,9 @@
-# rm .bashrc
-# ln -s /mnt/c/Users/phil.boyd/.ssh $HOME/.ssh
-# ln -s /mnt/c/Users/phil.boyd/.kube $HOME/.kube
-# ln -s /mnt/c/Users/phil.boyd/.bashrc $HOME/.bashrc
-# ln -s /mnt/c/Users/phil.boyd/.bash_aliases $HOME/.bash_aliases
-# ln -s /mnt/c/Users/phil.boyd/.bash_profile $HOME/.bash_profile
+rm .bashrc
+ln -s /mnt/c/Users/phil.boyd/.ssh $HOME/.ssh
+ln -s /mnt/c/Users/phil.boyd/.kube $HOME/.kube
+ln -s /mnt/c/Users/phil.boyd/.bashrc $HOME/.bashrc
+ln -s /mnt/c/Users/phil.boyd/.bash_aliases $HOME/.bash_aliases
+ln -s /mnt/c/Users/phil.boyd/.bash_profile $HOME/.bash_profile
 
 apt-get update && apt-get upgrade -y && \
 apt-get install -y --no-install-recommends \
@@ -96,78 +96,76 @@ apt-get update && apt-get upgrade -y && \
 
 # Install kustomize (latest release)
 # https://github.com/kubernetes-sigs/kustomize/releases
-export KUSTOMIZE_VERSION=v4.5.4
+export KUSTOMIZE_VERSION=v4.5.5
 curl -sLO https://github.com/kubernetes-sigs/kustomize/releases/download/kustomize%2F${KUSTOMIZE_VERSION}/kustomize_${KUSTOMIZE_VERSION}_linux_amd64.tar.gz && \
     tar xvzf kustomize_${KUSTOMIZE_VERSION}_linux_amd64.tar.gz && \
-    mv kustomize /usr/bin/kustomize && \
-    chmod +x /usr/bin/kustomize && \
+    sudo mv kustomize /usr/bin/kustomize && \
+    sudo chmod +x /usr/bin/kustomize && \
     rm kustomize_${KUSTOMIZE_VERSION}_linux_amd64.tar.gz
 
 # Install kubeseal
 # https://github.com/bitnami-labs/sealed-secrets/releases
-export KUBESEAL_VERSION=0.17.5
+export KUBESEAL_VERSION=0.18.0
 curl -sL https://github.com/bitnami-labs/sealed-secrets/releases/download/v${KUBESEAL_VERSION}/kubeseal-${KUBESEAL_VERSION}-linux-amd64.tar.gz -o kubeseal.tar.gz && \
     tar xvzf kubeseal.tar.gz && \
-    mv kubeseal /usr/bin/kubeseal && \
-    chmod +x /usr/bin/kubeseal && \
+    sudo mv kubeseal /usr/bin/kubeseal && \
+    sudo chmod +x /usr/bin/kubeseal && \
     rm kubeseal.tar.gz LICENSE README.md
 
 # python
-apt-get install python python3-pip && \
-  pip install --upgrade pip setuptools wheel && \
-  apt-get clean
+sudo apt-get install python python3-pip && \
+  sudo pip install --upgrade pip setuptools wheel && \
+  sudo apt-get clean
 
 # terratest requires go
-export GO_VERSION=1.17.8
-curl -O https://dl.google.com/go/go${GO_VERSION}.linux-amd64.tar.gz && \
-    tar xvf go${GO_VERSION}.linux-amd64.tar.gz -C /usr/local && \
-    rm -rf go${GO_VERSION}.linux-amd64.tar.gz
+export GO_VERSION=1.18.3
+sudo curl -O https://dl.google.com/go/go${GO_VERSION}.linux-amd64.tar.gz && \
+    sudo tar xvf go${GO_VERSION}.linux-amd64.tar.gz -C /usr/local && \
+    sudo rm -rf go${GO_VERSION}.linux-amd64.tar.gz
 
 # install sops
 # https://github.com/mozilla/sops
-export SOPS_VERSION=3.7.1
-/usr/local/go/bin/go install go.mozilla.org/sops/cmd/sops@latest
+export SOPS_VERSION=3.7.3
+sudo /usr/local/go/bin/go install go.mozilla.org/sops/cmd/sops@latest
 
 # install gomplate
 # https://github.com/hairyhenderson/gomplate
-export GOMPLATE_VERSION=3.10.0
-curl -sLO https://github.com/hairyhenderson/gomplate/releases/download/v${GOMPLATE_VERSION}/gomplate_linux-arm64-slim && \
-    mv gomplate_linux-arm64-slim /usr/bin/gomplate && \
-    chmod +x /usr/bin/gomplate
+export GOMPLATE_VERSION=3.11.1
+sudo curl -sLO https://github.com/hairyhenderson/gomplate/releases/download/v${GOMPLATE_VERSION}/gomplate_linux-arm64-slim && \
+    sudo mv gomplate_linux-arm64-slim /usr/bin/gomplate && \
+    sudo chmod +x /usr/bin/gomplate
 
 # terraform
-export TF_VERSION=1.1.9
-apt-get install -y --no-install-recommends terraform=${TF_VERSION} && \
-    apt-get clean
+export TF_VERSION=1.2.4
+sudo apt-get install -y --no-install-recommends terraform=${TF_VERSION} && \
+    sudo apt-get clean
 
-export TG_VERSION=0.36.10
-wget https://github.com/gruntwork-io/terragrunt/releases/download/v${TG_VERSION}/terragrunt_linux_amd64 && \
+export TG_VERSION=0.38.4
+sudo wget https://github.com/gruntwork-io/terragrunt/releases/download/v${TG_VERSION}/terragrunt_linux_amd64 && \
     # Move to local bin
-    mv terragrunt_linux_amd64 /usr/local/bin/terragrunt && \
+    sudo mv terragrunt_linux_amd64 /usr/local/bin/terragrunt && \
     # Make it executable
-    chmod +x /usr/local/bin/terragrunt && \
+    sudo chmod +x /usr/local/bin/terragrunt && \
     # Check that it's installed
     terragrunt --version
 
 # azure-cli
-apt-get update \
-    && apt-get upgrade -y \
-    && apt-get install -y --no-install-recommends azure-cli \
-    && apt-get clean
+sudo apt-get update \
+    && sudo apt-get upgrade -y \
+    && sudo apt-get install -y --no-install-recommends azure-cli \
+    && sudo apt-get clean
 
 # nvm
-# curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.1/install.sh | bash
-# source $HOME/.bashrc
 
 # install Net
 # export PATH="$HOME/.dotnet:$HOME/.dotnet/tools:${PATH}"
 
-wget https://packages.microsoft.com/config/debian/11/packages-microsoft-prod.deb -O packages-microsoft-prod.deb \
-    && dpkg -i packages-microsoft-prod.deb \
-    && rm packages-microsoft-prod.deb \
-    && apt-get update \
-    && apt-get install -y aspnetcore-runtime-3.1 aspnetcore-runtime-5.0 dotnet-sdk-6.0 \
-    && apt clean
+sudo wget https://packages.microsoft.com/config/debian/11/packages-microsoft-prod.deb -O packages-microsoft-prod.deb \
+    && sudo dpkg -i packages-microsoft-prod.deb \
+    && sudo rm packages-microsoft-prod.deb \
+    && sudo apt-get update \
+    && sudo apt-get install -y aspnetcore-runtime-3.1 aspnetcore-runtime-5.0 dotnet-sdk-6.0 \
+    && sudo apt clean
 
 dotnet tool install --global dotnet-ef && \
     dotnet tool install --global GitVersion.Tool && \
@@ -177,20 +175,20 @@ dotnet tool install --global dotnet-ef && \
 # ENV DOTNET_ROOT="/usr/bin"
 
 # git - gcmcore is dependent on .Net
-wget https://github.com/microsoft/Git-Credential-Manager-Core/releases/download/v2.0.632/gcmcore-linux_amd64.2.0.632.34631.deb && \
-    dpkg -i gcmcore-linux_amd64.2.0.632.34631.deb && \
-    rm gcmcore-linux_amd64.2.0.632.34631.deb && \
-    git config --global credential.credentialStore cache
+sudo wget https://github.com/GitCredentialManager/git-credential-manager/releases/download/v2.0.779/gcm-linux_amd64.2.0.779.deb && \
+    sudo dpkg -i gcm-linux_amd64.2.0.779.deb && \
+    sudo rm gcm-linux_amd64.2.0.779.deb && \
+    sudo git config --global credential.credentialStore cache
 
 # Powershell
-apt-get install -y powershell && apt-get clean
+sudo apt-get install -y powershell && sudo apt-get clean
 
 # dart-sass
-SASS_VERSION=1.51.0
-curl -sLO https://github.com/sass/dart-sass/releases/download/${SASS_VERSION}/dart-sass-${SASS_VERSION}-linux-x64.tar.gz && \
-    tar xvzf dart-sass-${SASS_VERSION}-linux-x64.tar.gz -C /usr/bin && \
+SASS_VERSION=1.53.0
+sudo curl -sLO https://github.com/sass/dart-sass/releases/download/${SASS_VERSION}/dart-sass-${SASS_VERSION}-linux-x64.tar.gz && \
+    sudo tar xvzf dart-sass-${SASS_VERSION}-linux-x64.tar.gz -C /usr/bin && \
     # mv ./dart-sass /usr/bin/ && \
-    chmod +x /usr/bin/dart-sass/sass && \
-    rm dart-sass-${SASS_VERSION}-linux-x64.tar.gz
+    sudo chmod +x /usr/bin/dart-sass/sass && \
+    sudo rm dart-sass-${SASS_VERSION}-linux-x64.tar.gz
 
-cd /tmp && rm -rf ./*
+cd /tmp && sudo rm -rf ./*
